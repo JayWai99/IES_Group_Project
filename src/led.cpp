@@ -1,11 +1,19 @@
+/* HEADER */
 #include "led.h"
-#include "usart.h"
 
-#define LED_PIN 0 // CHANGE THIS
+/* LIBRARIES */
+#include <avr/io.h>         // For Arduino I/O ports
 
-// This function should initialize the led. This should mostly involve initializing the pins and other register values.
-void setup_led(void) {
+#include "bit.h"            // For bit manipulation functions
+#include "usart.h"          // For USART functions
 
+/* MACROS */
+#define PIN_LED PINB1       // LED connected to pin 9 via pin B1
+
+// This function initialises the LED by setting the associated DDR to output mode
+void setup_led(void)
+{
+    BIT_SET(DDRB, PIN_LED);    // LED pin to output mode
 }
 
 // This function should set the LED to be 
