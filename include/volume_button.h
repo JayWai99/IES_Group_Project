@@ -7,6 +7,5 @@ void setup_volume_button(void);
 
 bool is_pressed_volume_button(void);
 bool is_volume_button_pressed_debounced(void);
-int volume_button_state(int button_state);
 
 #endif // VOLUME_BUTTON_H

@@ -29,14 +29,3 @@ bool is_volume_button_pressed_debounced(void) {
     }
     return false;
 }
-
-int volume_button_state(int button_state){
-    if (is_volume_button_pressed_debounced()){
-        button_state += 1;
-        if (button_state > 3){
-            button_state = 1;
-        }
-        return button_state;
-    }
-    return button_state;
-}
