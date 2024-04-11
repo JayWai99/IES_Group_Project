@@ -25,14 +25,19 @@ void set_status_led(bool enabled) {
     }
 }
 
-// This function should set the brightness of the LED.
-void set_brightness_led(brightness_t brightness) {
-    switch (brightness) {
+// This function sets the brightness of the LED
+void set_brightness_led(brightness_t brightness, float top)
+{
+    switch (brightness)
+    {
         case BRIGHTNESS_LOW:
+            OCR1B = top*(LED_LO/100);
             break;
         case BRIGHTNESS_MEDIUM:
+            OCR1B = top*(LED_MD/100);
             break;
         case BRIGHTNESS_HIGH:
+            OCR1B = top*(LED_HI/100);
             break;
         default: // This should never happen, but it's good to have a default case just in case.
             LOG_DEBUG_VARIABLE("Invalid brightness level", (double) brightness);
