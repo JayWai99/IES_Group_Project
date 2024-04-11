@@ -13,7 +13,7 @@ void setup_led(void);
 
 void set_status_led(bool enabled);
 
-void set_brightness_led(brightness_t brightness);
+void set_brightness_led(brightness_t brightness, float top);
 
 void set_frequency_led(float frequency);
 
