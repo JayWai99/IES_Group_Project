@@ -36,24 +36,28 @@ void setup_pwm(void)
 
     // Timer/counter to fast PWM MAX
     // Requires setting WGMx to 011
-    TCCR1B &= ~(1 << WGM12);
-    TCCR1A |=  (1 << WGM11);
-    TCCR1A |=  (1 << WGM10);
+    // TCCR1B &= ~(1 << WGM12);
+    // TCCR1A |=  (1 << WGM11);
+    // TCCR1A |=  (1 << WGM10);
 
     // Select prescaler for
     // Prescaler for 
 
-
-    // Calculate PWM parameters
-    //float period = 1/PWM_FREQ;
-    //float period_on  = period *    (PWM_DUTY/100) ;
-    //float period_off = period * (1-(PWM_DUTY/100));
-
     // Timer/counter to fast PWM TOP
-    // Requires setting WGMx to 111
-    //TCCR1B |=  (1 << WGM12);
-    //TCCR1A |=  (1 << WGM11);
-    //TCCR1A |=  (1 << WGM10);
+    // Requires setting WGMx[0-2] to 111
+    TCCR1B |=  (1 << WGM12);
+    TCCR1A |=  (1 << WGM11);
+    TCCR1A |=  (1 << WGM10);
+
+    // Output compare to toggle OCxA on compare match
+    // Requires setting COMxA[0-1] to 01 
+    TCCR1A &= ~(1 << COM1A1);
+    TCCR1A |=  (1 << COM1A0);
+    // Output compare to non-inverting mode
+    // Requires setting COMxB[0-1] to 10
+    TCCR1A |=  (1 << COM1B1);
+    TCCR1A &= ~(1 << COM1B0);
+
     // Select prescaler for
     // Prescaler for 
 
