@@ -8,6 +8,11 @@
 #include "usart.h"          // For USART functions
 
 /* MACROS */
+#define LED_LO 25           // Duty cycle for LED low    brightness
+#define LED_MD 50           // Duty cycle for LED medium brightness
+#define LED_HI 75           // Duty cycle for LED high   brightness
+
+/* PINS */
 #define PIN_LED PIND5       // LED connected to pin 5 via pin D5
 
 // This function initialises the LED by setting the associated DDR to output mode
@@ -31,13 +36,13 @@ void set_brightness_led(brightness_t brightness, float top)
     switch (brightness)
     {
         case BRIGHTNESS_LOW:
-            OCR1B = top*(LED_LO/100);
+            OCR0B = top*(LED_LO/100);
             break;
         case BRIGHTNESS_MEDIUM:
-            OCR1B = top*(LED_MD/100);
+            OCR0B = top*(LED_MD/100);
             break;
         case BRIGHTNESS_HIGH:
-            OCR1B = top*(LED_HI/100);
+            OCR0B = top*(LED_HI/100);
             break;
         default: // This should never happen, but it's good to have a default case just in case.
             LOG_DEBUG_VARIABLE("Invalid brightness level", (double) brightness);
