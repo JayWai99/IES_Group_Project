@@ -31,7 +31,7 @@ void set_status_led(bool enabled) {
 }
 
 // This function sets the brightness of the LED
-void set_brightness_led(brightness_t brightness, float top)
+void set_brightness_led(brightness_t brightness)
 {
     switch (brightness)
     {
