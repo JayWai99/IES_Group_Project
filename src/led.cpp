@@ -8,12 +8,12 @@
 #include "usart.h"          // For USART functions
 
 /* MACROS */
-#define PIN_LED PINB1       // LED connected to pin 9 via pin B1
+#define PIN_LED PIND5       // LED connected to pin 5 via pin D5
 
 // This function initialises the LED by setting the associated DDR to output mode
 void setup_led(void)
 {
-    BIT_SET(DDRB, PIN_LED);    // LED pin to output mode
+    BIT_SET(DDRD, PIN_LED);    // LED pin to output mode
 }
 
 // This function should set the LED to be 
