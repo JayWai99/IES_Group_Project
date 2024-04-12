@@ -36,13 +36,13 @@ void set_brightness_led(brightness_t brightness)
     switch (brightness)
     {
         case BRIGHTNESS_LOW:
-            OCR0B = top*(LED_LO/100);
+            OCR0B = OCR0A*(LED_LO/100);
             break;
         case BRIGHTNESS_MEDIUM:
-            OCR0B = top*(LED_MD/100);
+            OCR0B = OCR0A*(LED_MD/100);
             break;
         case BRIGHTNESS_HIGH:
-            OCR0B = top*(LED_HI/100);
+            OCR0B = OCR0A*(LED_HI/100);
             break;
         default: // This should never happen, but it's good to have a default case just in case.
             LOG_DEBUG_VARIABLE("Invalid brightness level", (double) brightness);
