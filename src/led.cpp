@@ -8,12 +8,21 @@
 #include "usart.h"          // For USART functions
 
 /* MACROS */
+#define MAX 255             // Maximum size of OCR0A in decimal
+#define F_CLK 16000000      // CPU clock frequency
+
 #define LED_LO 25           // Duty cycle for LED low    brightness
 #define LED_MD 50           // Duty cycle for LED medium brightness
 #define LED_HI 75           // Duty cycle for LED high   brightness
 
 /* PINS */
 #define PIN_LED PIND5       // LED connected to pin 5 via pin D5
+
+/* CONSTANTS */
+static const int prescaler[] = {0, 1, 8, 64, 256, 1024};
+
+/* VARIABLES */
+
 
 // This function initialises the LED by setting the associated DDR to output mode
 void setup_led(void)
