@@ -56,8 +56,6 @@ int main(void) {
     setup();
 
     bool led_enabled = false; // Initialize the LED status to be off
-    //bool buzzer_enabled = false; // Initialize the buzzer status to be off
-    //bool led_buzzer_enabled = false; // Or we can do this
     volume_t buzzer_volume = VOLUME_LOW; // Initialize the buzzer volume to be low
 
     while (true) {
@@ -71,15 +69,7 @@ int main(void) {
         if (power_button_pressed) {
             led_enabled = !led_enabled;
             set_status_led(led_enabled);
-            //buzzer_enabled = !buzzer_enabled; // I believe this is the correct implementation of the first button
-            //set_status_buzzer(buzzer_enabled);
         }
-
-        // I have defined the if statement above in a function in power_button.cpp
-        // so maybe we can do this instead
-        //power_button_state(led_buzzer_enabled);
-        //set_status_led(led_buzzer_enabled);
-        //set_status_buzzer(led_buzzer_enabled);
 
         if (volume_button_pressed) {
             buzzer_volume = next_volume(buzzer_volume);

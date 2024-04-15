@@ -31,10 +31,10 @@ bool is_pressed_power_button_debounced(void) {
     return false;
 }
 
-bool power_button_state(bool button_state){
-    if (is_pressed_power_button_debounced()){
-        button_state = !button_state;
-        return button_state;
-    }
-    return button_state;
-}
+// bool power_button_state(bool button_state){
+//     if (is_pressed_power_button_debounced()){
+//         button_state = !button_state;
+//         return button_state;
+//     }
+//     return button_state;
+// }
