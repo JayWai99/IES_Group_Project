@@ -22,6 +22,8 @@
 // 13.5039 in/ms = 13.5039 / 1000 in/us = 0.0135039 in/us
 #define SPEED_OF_SOUND_IN_US (13503.9 / 1000 / 1000) // Speed of sound in in/us
 
+
+
 #define ULTRASONIC_TRIGGER_PIN PD7
 #define ULTRASONIC_ECHO_PIN PD2
 #define BUTTON_PIN PD3
@@ -47,11 +49,11 @@ void setup(void) {
     BIT_SET(TCCR0A, WGM01);
     BIT_CLEAR(TCCR0A, WGM00);
     // // Set prescaler to 1 (0b001)
-    // BIT_CLEAR(TCCR0B, CS02);
-    // BIT_CLEAR(TCCR0B, CS01);
-    // BIT_SET(TCCR0B, CS00);
+    BIT_CLEAR(TCCR0B, CS02);
+    BIT_SET(TCCR0B, CS01);
+    BIT_CLEAR(TCCR0B, CS00);
     // Set TOP value for 1MHz (16MHz / 16 = 1MHz)
-    OCR0A = 160;
+    OCR0A = 200;
     TCNT0 = 0; // Reset Timer0 counter
     // Enable Timer0 interrupt
     BIT_SET(TIMSK0, OCIE0A);
@@ -69,11 +71,23 @@ void setup(void) {
     sei(); // Enable global interrupts
 }
 
+bool is_pressed_power_button(void) {
+    return BIT_READ(PIND, BUTTON_PIN) == 0;
+}
+
+bool is_pressed_power_button_debounced(void) {
+    if (is_pressed_power_button()) {
+        _delay_us(20);
+        return is_pressed_power_button();
+    }
+    return false;
+}
 
 /* GLOBAL VARIABLES */
 volatile static uint32_t duration = 0;
 volatile static bool is_echoing = false;
 volatile static bool is_button_pressed = false;
+volatile static bool button_state = false;
 
 ISR(TIMER0_COMPA_vect) {
     duration++;
@@ -89,8 +103,9 @@ ISR(INT0_vect) {
 }
 
 ISR(INT1_vect) {
-    if (BIT_READ(PIND, BUTTON_PIN)) {
-        is_button_pressed = true;
+    if (is_pressed_power_button_debounced()) {
+        
+        button_state = !button_state;
     } else {
         is_button_pressed = false;
     }
@@ -100,10 +115,10 @@ ISR(INT1_vect) {
 int main(void) {
     setup();
 
-    is_button_pressed = false;
+    button_state = false;
 
     while (true) {
-        if (!is_button_pressed) {
+        if (button_state) {
             continue;
         }
 
@@ -121,7 +136,7 @@ int main(void) {
         while (is_echoing);
         BIT_CLEAR(TCCR0B, CS00); // Stop Timer0
 
-        double rtt = duration * 10.0; // Round trip time in microseconds
+        double rtt = duration; // Round trip time in microseconds
         double distance = rtt / 2;
 
 
