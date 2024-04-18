@@ -9,16 +9,22 @@
 #include <stddef.h>         // Standard Definition library for type definitions
 #include <math.h>           // For mathematical operations
 #include <avr/interrupt.h>  // For interrupt routine
+#include <util/delay.h>     // For delay functions
 
 #include "bit.h"            // For bit set and bit clear functions
 #include "usart.h"          // For USART
-#include "ultrasonic.h"     // For Ultrasonic sensor
-#include "led_button.h"     // For LED Button
-#include "volume_button.h"  // For Volume Button
-#include "photoresistor.h"  // For Photoresistor
-#include "led.h"            // For LED
-#include "buzzer.h"         // For Buzzer
 
+// 343 m/s = 343 * 100 cm/s = 34300 cm/s
+// 34300 cm/s = 34300 / 1000 cm/ms = 34.3 cm/ms
+// 34.3 cm/ms = 34.3 / 1000 cm/us = 0.0343 cm/us
+#define SPEED_OF_SOUND_CM_US (343.0 * 100.0 / 1000.0 / 1000.0) // Speed of sound in cm/us
+// 13503.9 in/s = 13503.9 / 1000 in/ms = 13.5039 in/ms
+// 13.5039 in/ms = 13.5039 / 1000 in/us = 0.0135039 in/us
+#define SPEED_OF_SOUND_IN_US (13503.9 / 1000 / 1000) // Speed of sound in in/us
+
+#define ULTRASONIC_TRIGGER_PIN PD7
+#define ULTRASONIC_ECHO_PIN PD2
+#define BUTTON_PIN PD3
 
 /* FUNCTIONS */
 void setup(void) {
@@ -26,66 +32,103 @@ void setup(void) {
     
     LOG_INFO("Running Setup");
 
-    LOG_DEBUG("Setting up Ultrasonic Sensor");
-    setup_ultrasonic();
-    
-    LOG_DEBUG("Setting up Buzzer");
-    setup_buzzer();
+    LOG_DEBUG("Setting up ultrasonic sensor");
+    // Set trigger pin as output
+    BIT_SET(DDRD, ULTRASONIC_TRIGGER_PIN);
+    // Set echo pin as input
+    BIT_CLEAR(DDRD, ULTRASONIC_ECHO_PIN);
 
-    LOG_DEBUG("Setting up LED");
-    setup_led();
+    BIT_SET(EIMSK, INT0); // Enable INT0
+    BIT_SET(EICRA, ISC00); // Trigger on any logical change
 
-    LOG_DEBUG("Setting up LED Button");
-    setup_led_button();
+    LOG_INFO("Setup 1MHz Interrupt");
+    // Set Timer0 to CTC mode (0b010)
+    BIT_CLEAR(TCCR0B, WGM02);
+    BIT_SET(TCCR0A, WGM01);
+    BIT_CLEAR(TCCR0A, WGM00);
+    // // Set prescaler to 1 (0b001)
+    // BIT_CLEAR(TCCR0B, CS02);
+    // BIT_CLEAR(TCCR0B, CS01);
+    // BIT_SET(TCCR0B, CS00);
+    // Set TOP value for 1MHz (16MHz / 16 = 1MHz)
+    OCR0A = 160;
+    TCNT0 = 0; // Reset Timer0 counter
+    // Enable Timer0 interrupt
+    BIT_SET(TIMSK0, OCIE0A);
 
-    LOG_DEBUG("Setting up Volume Button");
-    setup_volume_button();
 
-    LOG_DEBUG("Setting up Photoresistor");
-    setup_photoresistor();
+    LOG_DEBUG("Setting up button");
+    // Set button pin as input
+    BIT_CLEAR(DDRD, BUTTON_PIN);
+    // Enable pull-up resistor
+    BIT_SET(PORTD, BUTTON_PIN);
+
+    BIT_SET(EIMSK, INT1); // Enable INT1
+    BIT_SET(EICRA, ISC10); // Trigger on any logical change
+
+    sei(); // Enable global interrupts
 }
 
 
 /* GLOBAL VARIABLES */
+volatile static uint32_t duration = 0;
+volatile static bool is_echoing = false;
+volatile static bool is_button_pressed = false;
 
+ISR(TIMER0_COMPA_vect) {
+    duration++;
+}
 
 /* INTERRUPT SERVICE ROUTINE */
+ISR(INT0_vect) {
+    if (BIT_READ(PIND, ULTRASONIC_ECHO_PIN)) {
+        is_echoing = true;
+    } else {
+        is_echoing = false;
+    }
+}
+
+ISR(INT1_vect) {
+    if (BIT_READ(PIND, BUTTON_PIN)) {
+        is_button_pressed = true;
+    } else {
+        is_button_pressed = false;
+    }
+}
 
 /* MAIN */
 int main(void) {
     setup();
 
-    bool led_enabled = false; // Initialize the LED status to be off
-    volume_t buzzer_volume = VOLUME_LOW; // Initialize the buzzer volume to be low
+    is_button_pressed = false;
 
     while (true) {
-        uint32_t ultrasonic_duration = read_ultrasonic();
-
-        // Poll for Events
-        bool led_button_pressed = is_pressed_led_button();
-        bool volume_button_pressed = is_pressed_volume_button();
-        float light_level = read_photoresistor();
-
-        if (led_button_pressed) {
-            led_enabled = !led_enabled;
-            set_status_led(led_enabled);
+        if (!is_button_pressed) {
+            continue;
         }
 
-        if (volume_button_pressed) {
-            buzzer_volume = next_volume(buzzer_volume);
-            set_volume_buzzer(buzzer_volume);
-        }
+        duration = 0;
+        is_echoing = true;
+        TCNT0 = 0; // Reset Timer0 counter
 
-        if (light_level < 0.33) {
-            set_brightness_led(BRIGHTNESS_LOW);
-        } else if (light_level < 0.66) {
-            set_brightness_led(BRIGHTNESS_MEDIUM);
-        } else {
-            set_brightness_led(BRIGHTNESS_HIGH);
-        }
+        // Send a 10us pulse to the trigger pin
+        BIT_SET(PORTD, ULTRASONIC_TRIGGER_PIN);
+        _delay_us(10);
+        BIT_CLEAR(PORTD, ULTRASONIC_TRIGGER_PIN);
 
-        // These frequency scales will need to be adjusted based on the actual values of the ultrasonic sensor
-        set_frequency_led(1.0f / ultrasonic_duration);
-        set_frequency_buzzer(1.0f / ultrasonic_duration);
+        BIT_SET(TCCR0B, CS00); // Start Timer0
+        // Wait for the echo pin to go low
+        while (is_echoing);
+        BIT_CLEAR(TCCR0B, CS00); // Stop Timer0
+
+        double rtt = duration * 10.0; // Round trip time in microseconds
+        double distance = rtt / 2;
+
+
+        usart_teleplot("duration", duration);
+        // print the distance in cm
+        usart_teleplot("metric", distance * SPEED_OF_SOUND_CM_US);
+        // print the distance in inches
+        usart_teleplot("imperial", distance * SPEED_OF_SOUND_IN_US);
     }
 }
