@@ -2,6 +2,7 @@
 #define F_CPU 16000000UL    // Define the CPU frequency
 #define BAUD 9600           // Define the baud rate
 #define DEBUG 1             // Define the debug mode
+#define __DELAY_BACKWARD_COMPATIBLE__
 
 /* LIBRARIES */
 #include <avr/io.h>
@@ -47,11 +48,11 @@ void setup(void) {
     BIT_SET(TCCR0A, WGM01);
     BIT_CLEAR(TCCR0A, WGM00);
     // // Set prescaler to 1 (0b001)
-    // BIT_CLEAR(TCCR0B, CS02);
-    // BIT_CLEAR(TCCR0B, CS01);
-    // BIT_SET(TCCR0B, CS00);
+    BIT_CLEAR(TCCR0B, CS02);
+    BIT_SET(TCCR0B, CS01);
+    BIT_CLEAR(TCCR0B, CS00);
     // Set TOP value for 1MHz (16MHz / 16 = 1MHz)
-    OCR0A = 160;
+    OCR0A = 20;
     TCNT0 = 0; // Reset Timer0 counter
     // Enable Timer0 interrupt
     BIT_SET(TIMSK0, OCIE0A);
@@ -125,7 +126,6 @@ int main(void) {
         double distance = rtt / 2;
 
 
-        usart_teleplot("duration", duration);
         // print the distance in cm
         usart_teleplot("metric", distance * SPEED_OF_SOUND_CM_US);
         // print the distance in inches
