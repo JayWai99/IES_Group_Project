@@ -9,6 +9,7 @@ typedef enum {
     BRIGHTNESS_HIGH
 } brightness_t;
 
+// LED starts with T/C0 output compare module in non-inverting fast PWM mode by default
 void setup_led(void);
 
 void set_status_led(bool enabled);
