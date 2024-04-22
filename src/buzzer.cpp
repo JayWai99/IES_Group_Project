@@ -11,9 +11,9 @@
 #define MAX 255             // Maximum size of OCR0A in decimal
 #define F_CLK 16000000      // CPU clock frequency
 
-#define BUZ_LO 0.05         // Duty cycle for buzzer low    volume
-#define BUZ_MD 0.10         // Duty cycle for buzzer medium volume
-#define BUZ_HI 0.15         // Duty cycle for buzzer high   volume
+#define BUZ_LO 0.10         // Duty cycle for buzzer low    volume
+#define BUZ_MD 0.20         // Duty cycle for buzzer medium volume
+#define BUZ_HI 0.30         // Duty cycle for buzzer high   volume
 
 /* PINS */
 #define PIN_BUZ PIND3       // Buzzer connected to pin 3 via pin D3
