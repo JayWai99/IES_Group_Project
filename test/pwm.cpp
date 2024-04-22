@@ -8,7 +8,7 @@
 #include <stddef.h>         // For size_t
 
 #include "usart.h"
-//#include "led.h"
+#include "led.h"
 #include "buzzer.h"
 
 /* MACROS */
@@ -30,39 +30,39 @@ int main(void)
     setup_usart();
     _delay_ms(500);
 
-    //setup_led();
+    setup_led();
     setup_buzzer();
 
-    //set_brightness_led(BRIGHTNESS_LOW);
+    set_brightness_led(BRIGHTNESS_LOW);
     set_volume_buzzer(VOLUME_LOW);
 
-    //bool led_enabled = true;
+    bool led_enabled = true;
     bool buzzer_enabled = true;
-    //set_status_led(led_enabled);
+    set_status_led(led_enabled);
     set_status_buz(buzzer_enabled);
 
     while(1)
     {
         for (size_t i = 65; i < 2065; i = i + 100)
         {
-            // //led_enabled = !led_enabled;
-            // buzzer_enabled = !buzzer_enabled;
-            // //set_status_led(led_enabled);
-            // set_status_buz(buzzer_enabled);
+            led_enabled = !led_enabled;
+            buzzer_enabled = !buzzer_enabled;
+            set_status_led(led_enabled);
+            set_status_buz(buzzer_enabled);
 
-            //set_frequency_led(i);
+            set_frequency_led(i);
             set_frequency_buzzer(i);
             usart_teleplot("F", i);
 
-            //set_brightness_led(BRIGHTNESS_LOW);
+            set_brightness_led(BRIGHTNESS_LOW);
             set_volume_buzzer(VOLUME_LOW);
             print_variables();
             _delay_ms(2000);
-            //set_brightness_led(BRIGHTNESS_MEDIUM);
+            set_brightness_led(BRIGHTNESS_MEDIUM);
             set_volume_buzzer(VOLUME_MEDIUM);
             print_variables();
             _delay_ms(2000);
-            //set_brightness_led(BRIGHTNESS_HIGH);
+            set_brightness_led(BRIGHTNESS_HIGH);
             set_volume_buzzer(VOLUME_HIGH);
             print_variables();
             _delay_ms(2000);
