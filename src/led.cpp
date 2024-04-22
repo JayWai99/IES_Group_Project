@@ -5,7 +5,6 @@
 #include <avr/io.h>         // For Arduino I/O ports
 #include <stddef.h>         // For size_t
 
-#include "bit.h"            // For bit manipulation functions
 #include "usart.h"          // For USART functions
 
 /* MACROS */
@@ -26,7 +25,7 @@ static const int prescaler[] = {1, 8, 64, 256, 1024};
 static float duty_cycle;
 
 /* FUNCTIONS */
-void set_prescaler(int i);
+void set_prescaler_led(int i);
 
 /* MAIN */
 void setup_led(void)
@@ -98,7 +97,7 @@ void set_frequency_led(float frequency)
         {
             OCR0A = top;
             OCR0B = duty_cycle * top;
-            set_prescaler(i);
+            set_prescaler_led(i);
             return;
         }
     }
@@ -106,7 +105,7 @@ void set_frequency_led(float frequency)
     LOG_DEBUG_VARIABLE("Invalid frequency", (double) frequency);
 }
 
-void set_prescaler(int i)
+void set_prescaler_led(int i)
 {
     switch (i)
     {
