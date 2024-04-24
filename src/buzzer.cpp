@@ -19,7 +19,7 @@
 #define PIN_BUZ PIND3       // Buzzer connected to pin 3 via pin D3
 
 /* CONSTANTS */
-static const int prescaler[] = {1, 8, 64, 256, 1024};
+static const int prescaler[] = {1, 8, 32, 64, 128, 256, 1024};
 
 /* VARIABLES */
 static float duty_cycle;
@@ -132,6 +132,16 @@ void set_prescaler_buz(int i)
         case 4:
             TCCR2B |=  (1 << CS22);
             TCCR2B &= ~(1 << CS21);
+            TCCR2B |=  (1 << CS20);
+            break;
+        case 5:
+            TCCR2B |=  (1 << CS22);
+            TCCR2B |=  (1 << CS21);
+            TCCR2B &= ~(1 << CS20);
+            break;
+        case 6:
+            TCCR2B |=  (1 << CS22);
+            TCCR2B |=  (1 << CS21);
             TCCR2B |=  (1 << CS20);
             break;
         default:
