@@ -13,7 +13,7 @@
 #include "bit.h"            // For bit set and bit clear functions
 #include "usart.h"          // For USART
 #include "ultrasonic.h"     // For Ultrasonic sensor
-#include "led_button.h"     // For LED Button
+#include "power_button.h"     // For LED Button
 #include "volume_button.h"  // For Volume Button
 #include "photoresistor.h"  // For Photoresistor
 #include "led.h"            // For LED
@@ -35,8 +35,8 @@ void setup(void) {
     LOG_DEBUG("Setting up LED");
     setup_led();
 
-    LOG_DEBUG("Setting up LED Button");
-    setup_led_button();
+    LOG_DEBUG("Setting up POWER Button");
+    setup_power_button();
 
     LOG_DEBUG("Setting up Volume Button");
     setup_volume_button();
@@ -62,11 +62,11 @@ int main(void) {
         uint32_t ultrasonic_duration = read_ultrasonic();
 
         // Poll for Events
-        bool led_button_pressed = is_pressed_led_button();
+        bool power_button_pressed = is_pressed_power_button();
         bool volume_button_pressed = is_pressed_volume_button();
         float light_level = read_photoresistor();
 
-        if (led_button_pressed) {
+        if (power_button_pressed) {
             led_enabled = !led_enabled;
             set_status_led(led_enabled);
         }
