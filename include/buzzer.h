@@ -26,7 +26,7 @@ static volume_t next_volume(volume_t volume) {
 // Buzzer starts with T/C2 output compare module in non-inverting fast PWM mode by default
 void setup_buzzer(void);
 
-void set_status_buz(bool enabled);
+void set_status_buzzer(bool enabled);
 
 void set_volume_buzzer(volume_t volume);
 

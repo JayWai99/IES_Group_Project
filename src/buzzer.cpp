@@ -45,7 +45,7 @@ void setup_buzzer(void)
     TCCR2A |=  (1 << COM2A0);
 }
 
-void set_status_buz(bool enabled)
+void set_status_buzzer(bool enabled)
 {
     if (enabled)
     {
