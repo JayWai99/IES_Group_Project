@@ -1,30 +1,36 @@
-#include "buzzer.h"
+#ifndef BUZZER_H
+#define BUZZER_H
+
 #include "usart.h"
 
-#define BUZZER_PIN 0 // CHANGE THIS
+typedef enum {
+    VOLUME_LOW = 1,
+    VOLUME_MEDIUM,
+    VOLUME_HIGH
+} volume_t;
 
-// This function should initialize the buzzer.
-// This should mostly involve initializing the pins and other register values.
-void setup_buzzer(void) {
-
-}
-
-// This function should set the volume of the buzzer.
-void set_volume_buzzer(volume_t volume) {
+static volume_t next_volume(volume_t volume) {
     switch (volume) {
         case VOLUME_LOW:
-            break;
+            return VOLUME_MEDIUM;
         case VOLUME_MEDIUM:
-            break;
+            return VOLUME_HIGH;
         case VOLUME_HIGH:
-            break;
+            return VOLUME_LOW;
         default: // This should never happen, but it's good to have a default case just in case.
             LOG_DEBUG_VARIABLE("Invalid volume level", (double) volume);
-            break;
+            return VOLUME_LOW;
     }
 }
 
-// This function should set the frequency of the buzzer.
-void set_frequency_buzzer(float frequency) {
-    
-}
+// Buzzer starts with T/C2 output compare module in non-inverting fast PWM mode by default
+void setup_buzzer(void);
+
+void set_status_buz(bool enabled);
+
+void set_volume_buzzer(volume_t volume);
+
+// Valid frequencies are between 62 Hz and 20,000 Hz.
+void set_frequency_buzzer(float frequency);
+
+#endif // BUZZER_H
