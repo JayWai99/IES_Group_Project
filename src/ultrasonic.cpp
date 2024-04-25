@@ -7,11 +7,6 @@
 #define ULTRASONIC_TRIG_PIN PIND4 // Ultra Sonic Trigger line connected to pin 4 at port D, pin 4
 #define ULTRASONIC_ECHO_PIN PIND3 // Ultra Sonic Echo line connected to pin 3 at port D, pin 3
 
-// 343 m/s = 343 * 100 cm/s = 34300 cm/s
-// 34300 cm/s = 34300 / 1000 cm/ms = 34.3 cm/ms
-// 34.3 cm/ms = 34.3 / 1000 cm/us = 0.0343 cm/us
-// #define SPEED_OF_SOUND_CM_US (343.0 * 100.0 / 1000.0 / 1000.0) // Speed of sound in cm/us
-
 // This function should initialize the ultrasonic sensor. This should mostly involve initializing the pins and other register values.
 void setup_ultrasonic(void) {
     // Set the ultrasonic trigger as output
@@ -39,7 +34,5 @@ uint32_t read_ultrasonic(void) {
         }
 
         uint32_t rtt = count * 10; // The round trip time of the echo signal, in microseconds
-        // double distance = ((double) rtt) / 2;
-        // double distance_cm = distance * SPEED_OF_SOUND_CM_US;
         return rtt;
 }
