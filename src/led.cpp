@@ -11,9 +11,9 @@
 #define MAX 255             // Maximum size of OCR0A in decimal
 #define F_CLK 16000000      // CPU clock frequency
 
-#define LED_LO 0.25         // Duty cycle for LED low    brightness
-#define LED_MD 0.50         // Duty cycle for LED medium brightness
-#define LED_HI 0.75         // Duty cycle for LED high   brightness
+#define LED_LO 0.10         // Duty cycle for LED low    brightness
+#define LED_MD 0.30         // Duty cycle for LED medium brightness
+#define LED_HI 0.90         // Duty cycle for LED high   brightness
 
 /* PINS */
 #define PIN_LED PIND5       // LED connected to pin 5 via pin D5
@@ -43,6 +43,8 @@ void setup_led(void)
     // Requires setting COMxA[0-1] to 01
     TCCR0A &= ~(1 << COM0A1);
     TCCR0A |=  (1 << COM0A0);
+    
+    duty_cycle = LED_LO;
 }
 
 void set_status_led(bool enabled)

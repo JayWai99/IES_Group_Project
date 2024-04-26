@@ -12,8 +12,8 @@
 #define F_CLK 16000000      // CPU clock frequency
 
 #define BUZ_LO 0.10         // Duty cycle for buzzer low    volume
-#define BUZ_MD 0.20         // Duty cycle for buzzer medium volume
-#define BUZ_HI 0.30         // Duty cycle for buzzer high   volume
+#define BUZ_MD 0.40         // Duty cycle for buzzer medium volume
+#define BUZ_HI 0.90         // Duty cycle for buzzer high   volume
 
 /* PINS */
 #define PIN_BUZ PIND3       // Buzzer connected to pin 3 via pin D3
@@ -43,6 +43,8 @@ void setup_buzzer(void)
     // Requires setting COMxA[0-1] to 01
     TCCR2A &= ~(1 << COM2A1);
     TCCR2A |=  (1 << COM2A0);
+    
+    duty_cycle = BUZ_LO;
 }
 
 void set_status_buzzer(bool enabled)
