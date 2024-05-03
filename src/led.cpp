@@ -11,9 +11,9 @@
 #define MAX 255             // Maximum size of OCR0A in decimal
 #define F_CLK 16000000      // CPU clock frequency
 
-#define LED_LO 0.10         // Duty cycle for LED low    brightness
-#define LED_MD 0.30         // Duty cycle for LED medium brightness
-#define LED_HI 0.90         // Duty cycle for LED high   brightness
+#define LED_LO 0.30        // Duty cycle for LED low    brightness
+#define LED_MD 0.40         // Duty cycle for LED medium brightness
+#define LED_HI 0.85         // Duty cycle for LED high   brightness
 
 /* PINS */
 #define PIN_LED PIND5       // LED connected to pin 5 via pin D5
@@ -36,7 +36,7 @@ void setup_led(void)
     // Timer/counter fast PWM TOP
     // Requires setting WGMx[0-2] to 111
     TCCR0B |=  (1 << WGM02);
-    TCCR0A |=  (1 << WGM01);
+    TCCR0A &= ~(1 << WGM01);
     TCCR0A |=  (1 << WGM00);
 
     // Output compare toggle OCxA on compare match
