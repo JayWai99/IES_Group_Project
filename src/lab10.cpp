@@ -2,7 +2,6 @@
 #define F_CPU 16000000UL    // Define the CPU frequency
 #define BAUD 9600           // Define the baud rate
 #define MAX 255
-#define duty_cycle 0.5
 
 /* LIBRARIES */
 #include <avr/io.h>
@@ -27,6 +26,7 @@
 
 /* GLOBAL VARIABLES */
 int prescaler_value = 2;
+static float duty_cycle = 0.1;
 float frequency = 1000;
 
 /* FUNCTIONS */
@@ -39,6 +39,10 @@ void setup_pwm(void){
 
     BIT_SET(TCCR1A, COM1A0);
     BIT_CLEAR(TCCR1A, COM1A1);    
+}
+
+ISR(TIMER1_COMPB_vect){
+
 }
 
 void set_prescaler(int i){
@@ -116,16 +120,14 @@ bool read_state(void){
 void pwm_output(void){
     float top = 0;
 
-    for (prescaler_value = 0; prescaler_value < 7; prescaler_value++)
-    {
-        top = F_CPU / (prescaler_value * frequency);
 
-        if (top <= MAX){
-            OCR1A = top;
-            OCR1B = duty_cycle * top;
-            usart_teleplot("pwm output", (double) read_state());
-            return;
-        }
+    top = F_CPU / (prescaler_value * frequency);
+
+    if (top <= MAX){
+        OCR1A = top;
+        OCR1B = duty_cycle * top;
+        usart_teleplot("pwm output", (double) read_state());
+        return;
     }
     
 
