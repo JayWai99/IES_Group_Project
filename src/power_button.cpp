@@ -6,8 +6,8 @@
 #define POWER_BUTTON_PIN PINB3
 #define DEBOUNCE_DELAY 100 
 
-static bool last_state = false;
 
+static bool last_state = false;
 // This function should initialize the power button. This should mostly involve initializing the pins and other register values.
 void setup_power_button(void) {
     // Set the push button as output and initialise it to logic high
@@ -17,6 +17,7 @@ void setup_power_button(void) {
     // Set the push button as input
     BIT_CLEAR(DDRB, POWER_BUTTON_PIN);
 }
+
 
 bool power_button_read(void) {
     return BIT_READ(PINB, POWER_BUTTON_PIN) == 0;
