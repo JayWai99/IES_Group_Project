@@ -5,5 +5,6 @@
 #define BIT_SET(reg, n) (reg |= 1 << n)
 #define BIT_CLEAR(reg, n) (reg &= ~(1 << n))
 #define BIT_FLIP(reg, n) (reg ^= (1 << n))
+#define BIT_ASSIGN(reg, n, value) (reg = (reg & ~(1 << n)) | ((value & 1) << n))
 
 #endif // BIT_H
