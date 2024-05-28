@@ -1,5 +1,5 @@
 /* HEADER */
-#include "led.h"
+#include "pwm.h"
 
 /* LIBRARIES */
 #include <avr/io.h>         // For Arduino I/O ports
@@ -11,12 +11,9 @@
 #define MAX 255             // Maximum size of OCR0A in decimal
 #define F_CLK 16000000      // CPU clock frequency
 
-#define LED_LO 0.25         // Duty cycle for LED low    brightness
-#define LED_MD 0.50         // Duty cycle for LED medium brightness
-#define LED_HI 0.75         // Duty cycle for LED high   brightness
-
 /* PINS */
-#define PIN_LED PIND5       // LED connected to pin 5 via pin D5
+#define PWM_DDR DDRD        // PWM DDR for pin D5
+#define PWM_PIN PIND5       // PWM output on pin D5
 
 /* CONSTANTS */
 static const int prescaler[] = {1, 8, 64, 256, 1024};
@@ -28,10 +25,10 @@ static float duty_cycle;
 void set_prescaler_led(int i);
 
 /* MAIN */
-void setup_led(void)
+void pwm_setup(void)
 {
     // LED pin output mode
-    DDRD |= (1 << PIN_LED);
+    PWM_DDR |= (1 << PWM_PIN);
 
     // Timer/counter fast PWM TOP
     // Requires setting WGMx[0-2] to 111
@@ -45,7 +42,7 @@ void setup_led(void)
     TCCR0A |=  (1 << COM0A0);
 }
 
-void set_status_led(bool enabled)
+void pwm_set_status(bool enabled)
 {
     if (enabled)
     {
@@ -63,29 +60,16 @@ void set_status_led(bool enabled)
     }
 }
 
-void set_brightness_led(brightness_t brightness)
+void pwm_set_duty_cycle(float new_duty_cycle)
 {
-    switch (brightness)
-    {
-        case BRIGHTNESS_LOW:
-            duty_cycle = LED_LO;
-            break;
-        case BRIGHTNESS_MEDIUM:
-            duty_cycle = LED_MD;
-            break;
-        case BRIGHTNESS_HIGH:
-            duty_cycle = LED_HI;
-            break;
-        default: // This should never happen, but it's good to have a default case just in case.
-            LOG_DEBUG_VARIABLE("Invalid brightness level", (double) brightness);
-            break;
-    }
+    duty_cycle = new_duty_cycle;
 
     OCR0B = duty_cycle * OCR0A;
+    
 }
 
 // Valid frequencies are between 62 Hz and 60,000 Hz.
-void set_frequency_led(float frequency)
+void pwm_set_frequency(float frequency)
 {
     float top = 0;
 

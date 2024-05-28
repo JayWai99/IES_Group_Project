@@ -9,15 +9,11 @@
 #include <stddef.h>         // Standard Definition library for type definitions
 #include <math.h>           // For mathematical operations
 #include <avr/interrupt.h>  // For interrupt routine
+#include <avr/delay.h>
 
 #include "bit.h"            // For bit set and bit clear functions
 #include "usart.h"          // For USART
-#include "ultrasonic.h"     // For Ultrasonic sensor
-#include "power_button.h"     // For LED Button
-#include "volume_button.h"  // For Volume Button
-#include "photoresistor.h"  // For Photoresistor
-#include "led.h"            // For LED
-#include "buzzer.h"         // For Buzzer
+#include "pwm.h"            // For PWM on TC0
 
 
 /* FUNCTIONS */
@@ -26,66 +22,63 @@ void setup(void) {
     
     LOG_INFO("Running Setup");
 
-    LOG_DEBUG("Setting up Ultrasonic Sensor");
-    setup_ultrasonic();
-    
-    LOG_DEBUG("Setting up Buzzer");
-    setup_buzzer();
-
     LOG_DEBUG("Setting up LED");
-    setup_led();
+    pwm_setup();
 
-    LOG_DEBUG("Setting up POWER Button");
-    setup_power_button();
-
-    LOG_DEBUG("Setting up Volume Button");
-    setup_volume_button();
-
-    LOG_DEBUG("Setting up Photoresistor");
-    setup_photoresistor();
+    LOG_DEBUG("Setting up Timer1");
+    BIT_CLEAR(DDRB, PINB0); // Set pin B0 as input
+    BIT_SET(TCCR1B, CS10); // Set prescaler to 1
+    BIT_SET(TCCR1B, ICNC1); // Enable noise canceler
+    BIT_SET(TCCR1B, ICES1); // Set input capture edge to rising edge
+    BIT_SET(TIMSK1, ICIE1); // Enable input capture interrupt
+    sei();
 }
 
 
 /* GLOBAL VARIABLES */
-
+volatile uint16_t overflow_counter = 0;
+volatile uint32_t last_rising_edge = 0;
+volatile uint32_t last_falling_edge = 0;
 
 /* INTERRUPT SERVICE ROUTINE */
+ISR(TIMER1_OVF_vect) {
+    overflow_counter += 1;
+}
+
+ISR(TIMER1_CAPT_vect) {
+    if (BIT_READ(TCCR1B, ICES1)) {
+        last_rising_edge = (overflow_counter << 16) + ICR1;
+        overflow_counter = 0;
+        TCNT1 = 0;
+    } else {
+        last_falling_edge = (overflow_counter << 16) + ICR1;
+    }
+
+
+    BIT_FLIP(TCCR1B, ICES1); // Toggle input capture edge
+}
 
 /* MAIN */
 int main(void) {
     setup();
 
-    bool led_enabled = false; // Initialize the LED status to be off
-    volume_t buzzer_volume = VOLUME_LOW; // Initialize the buzzer volume to be low
+    uint8_t duty_cycle = 10;
 
+    pwm_set_frequency(1000
+    
+    );
+    pwm_set_status(true);
     while (true) {
-        uint32_t ultrasonic_duration = read_ultrasonic();
+        pwm_set_duty_cycle(duty_cycle / 100.0f);
+        duty_cycle = (duty_cycle + 10) % 100;
 
-        // Poll for Events
-        bool power_button_pressed = is_pressed_power_button();
-        bool volume_button_pressed = is_pressed_volume_button();
-        float light_level = read_photoresistor();
+        usart_teleplot("real", duty_cycle / 100.0f);
 
-        if (power_button_pressed) {
-            led_enabled = !led_enabled;
-            set_status_led(led_enabled);
-        }
+        double period = last_rising_edge / 16000000.0f;
+        double t_on = last_falling_edge / 16000000.0f;
+        usart_teleplot("period", period);
+        usart_teleplot("duty_cycle", t_on / period);
 
-        if (volume_button_pressed) {
-            buzzer_volume = next_volume(buzzer_volume);
-            set_volume_buzzer(buzzer_volume);
-        }
-
-        if (light_level < 0.33) {
-            set_brightness_led(BRIGHTNESS_LOW);
-        } else if (light_level < 0.66) {
-            set_brightness_led(BRIGHTNESS_MEDIUM);
-        } else {
-            set_brightness_led(BRIGHTNESS_HIGH);
-        }
-
-        // These frequency scales will need to be adjusted based on the actual values of the ultrasonic sensor
-        set_frequency_led(1.0f / ultrasonic_duration);
-        set_frequency_buzzer(1.0f / ultrasonic_duration);
+        _delay_ms(100);
     }
 }
