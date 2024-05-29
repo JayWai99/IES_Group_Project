@@ -45,6 +45,10 @@ void setup(void) {
     setup_photoresistor();
 }
 
+float bound(float value, float min, float max) {
+    return fmaxf(fminf(value, max), min);
+}
+
 
 /* GLOBAL VARIABLES */
 
@@ -55,7 +59,7 @@ void setup(void) {
 int main(void) {
     setup();
 
-    bool led_enabled = false; // Initialize the LED status to be off
+    bool power_status = false; // Initialize the LED status to be off
     volume_t buzzer_volume = VOLUME_LOW; // Initialize the buzzer volume to be low
 
     while (true) {
@@ -67,25 +71,34 @@ int main(void) {
         float light_level = read_photoresistor();
 
         if (power_button_pressed) {
-            led_enabled = !led_enabled;
-            set_status_led(led_enabled);
+            LOG_DEBUG_VARIABLE("Power Button Pressed", power_status);
+            power_status = !power_status;
+            set_status_led(power_status);
+            set_status_buzzer(power_status);
         }
 
         if (volume_button_pressed) {
+            LOG_DEBUG_VARIABLE("Volume Button Pressed", buzzer_volume);
             buzzer_volume = next_volume(buzzer_volume);
             set_volume_buzzer(buzzer_volume);
         }
 
-        if (light_level < 0.33) {
-            set_brightness_led(BRIGHTNESS_LOW);
-        } else if (light_level < 0.66) {
+        if (light_level < 0.15) {
+            set_brightness_led(BRIGHTNESS_HIGH);
+        } else if (light_level < 0.6) {
             set_brightness_led(BRIGHTNESS_MEDIUM);
         } else {
-            set_brightness_led(BRIGHTNESS_HIGH);
+            set_brightness_led(BRIGHTNESS_LOW);
         }
 
         // These frequency scales will need to be adjusted based on the actual values of the ultrasonic sensor
-        set_frequency_led(1.0f / ultrasonic_duration);
-        set_frequency_buzzer(1.0f / ultrasonic_duration);
+        float bounded_range = (bound(ultrasonic_duration, 200, 4000) - 200) / (4000 - 200);
+        float led_frequency = 20060 - (bounded_range * 20000);
+        float buzzer_frequency = 1500 - (bounded_range * 500);
+
+        LOG_DEBUG_VARIABLE("Volume", buzzer_volume);
+
+        set_frequency_led(led_frequency);
+        set_frequency_buzzer(buzzer_frequency);
     }
 }

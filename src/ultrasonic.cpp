@@ -4,8 +4,9 @@
 #include "ultrasonic.h"
 #include "bit.h"
 
-#define ULTRASONIC_TRIG_PIN PIND4 // Ultra Sonic Trigger line connected to pin 4 at port D, pin 4
-#define ULTRASONIC_ECHO_PIN PIND3 // Ultra Sonic Echo line connected to pin 3 at port D, pin 3
+
+#define ULTRASONIC_TRIG_PIN PIND7 // Ultra Sonic Trigger line connected to pin 7 at port D, pin 4
+#define ULTRASONIC_ECHO_PIN PIND6 // Ultra Sonic Echo line connected to pin 6 at port D, pin 3
 
 // This function should initialize the ultrasonic sensor. This should mostly involve initializing the pins and other register values.
 void setup_ultrasonic(void) {
